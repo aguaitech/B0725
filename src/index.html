@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+      .chart-container {
+        margin-bottom: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chart-container" id="linechart"></div>
+    <div class="chart-container" id="scatterplot"></div>
+    <div class="chart-container" id="stacked-bar-chart"></div>
+    <script>
+      // Load data for the line chart
+      d3.csv("line.csv").then(function (lineData) {
+        // Parse data
+        lineData.forEach(function (d) {
+          d.year = +d.year;
+          d.costOfLivingIndex = +d.costOfLivingIndex;
+        });
+
+        // Line chart implementation using D3
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 },
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+        const x = d3.scaleLinear().range([0, width]);
+        const y = d3.scaleLinear().range([height, 0]);
+
+        const line = d3
+          .line()
+          .x(function (d) {
+            return x(d.year);
+          })
+          .y(function (d) {
+            return y(d.costOfLivingIndex);
+          });
+
+        const svg = d3
+          .select("#linechart")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
+
+        x.domain(
+          d3.extent(lineData, function (d) {
+            return d.year;
+          })
+        );
+        y.domain(
+          d3.extent(lineData, function (d) {
+            return d.costOfLivingIndex;
+          })
+        );
+
+        svg
+          .append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        svg.append("g").call(d3.axisLeft(y));
+
+        svg
+          .append("path")
+          .datum(lineData)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-width", 1.5)
+          .attr("d", line);
+      });
+
+      // Load data for the scatterplot
+      d3.csv("scatter.csv").then(function (scatterData) {
+        // Parse data
+        scatterData.forEach(function (d) {
+          d.xValue = +d.xValue;
+          d.yValue = +d.yValue;
+        });
+
+        // Scatterplot implementation using D3
+        const margin = { top: 20, right: 20, bottom: 30, left: 40 },
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+        const x = d3.scaleLinear().range([0, width]);
+        const y = d3.scaleLinear().range([height, 0]);
+
+        const svg = d3
+          .select("#scatterplot")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
+
+        x.domain(
+          d3.extent(scatterData, function (d) {
+            return d.xValue;
+          })
+        ).nice();
+        y.domain(
+          d3.extent(scatterData, function (d) {
+            return d.yValue;
+          })
+        ).nice();
+
+        svg
+          .append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        svg.append("g").call(d3.axisLeft(y));
+
+        svg
+          .selectAll(".dot")
+          .data(scatterData)
+          .enter()
+          .append("circle")
+          .attr("class", "dot")
+          .attr("r", 3.5)
+          .attr("cx", function (d) {
+            return x(d.xValue);
+          })
+          .attr("cy", function (d) {
+            return y(d.yValue);
+          })
+          .attr("fill", "steelblue");
+      });
+
+      // Load data for the stacked bar chart
+      d3.csv("bar.csv").then(function (barData) {
+        // Parse data
+        const categories = barData.columns.slice(1);
+        const stack = d3.stack().keys(categories);
+        const stackedValues = stack(barData);
+
+        // Stacked bar chart implementation using D3
+        const margin = { top: 20, right: 20, bottom: 30, left: 40 },
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+        const x = d3.scaleBand().range([0, width]).padding(0.1);
+        const y = d3.scaleLinear().range([height, 0]);
+        const z = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const svg = d3
+          .select("#barchart")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
+
+        x.domain(
+          barData.map(function (d) {
+            return d.year;
+          })
+        );
+        y.domain([
+          0,
+          d3.max(stackedValues[stackedValues.length - 1], function (d) {
+            return d[1];
+          }),
+        ]).nice();
+        z.domain(categories);
+
+        svg
+          .selectAll(".serie")
+          .data(stackedValues)
+          .enter()
+          .append("g")
+          .attr("class", "serie")
+          .attr("fill", function (d, i) {
+            return z(i);
+          })
+          .selectAll("rect")
+          .data(function (d) {
+            return d;
+          })
+          .enter()
+          .append("rect")
+          .attr("x", function (d, i) {
+            return x(barData[i].year);
+          })
+          .attr("y", function (d) {
+            return y(d[1]);
+          })
+          .attr("height", function (d) {
+            return y(d[0]) - y(d[1]);
+          })
+          .attr("width", x.bandwidth());
+
+        svg
+          .append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        svg.append("g").call(d3.axisLeft(y));
+      });
+    </script>
+  </body>
+</html>
