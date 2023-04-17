@@ -2,31 +2,666 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    <style>
-      .chart-container {
-        margin-bottom: 40px;
-      }
-    </style>
   </head>
   <body>
-    <div class="chart-container" id="linechart"></div>
-    <div class="chart-container" id="scatterplot"></div>
-    <div class="chart-container" id="barchart"></div>
+    <div>
+      <svg style="width: 1920px; height: 1000px">
+        <g id="linechart" transform="translate(0,0)"></g>
+        <g id="scatterplot" transform="translate(0,500)"></g>
+        <g id="barchart" transform="translate(960,0)"></g>
+      </svg>
+    </div>
+    <p>
+      Tooltips: Hover on the line chart or stacked bar chart to show the
+      tooltips.
+    </p>
+    <p>
+      Zoom and Pan: Use mouse wheel to zoom and pan on the line chart.
+    </p>
+    <p>
+      Filtering: Click on the line chart or stacked bar chart to show the
+      corresponding comparison data in scatter plot.
+    </p>
     <script>
-      // Load data for the line chart
-      d3.csv("line.csv").then(function (lineData) {
+      // Load data
+      const data = [
+        {
+          year: "2016 Jan",
+          housing: "0.547748135",
+          transportation: "0.940814541",
+          food: "1.814980403",
+        },
+        {
+          year: "2016 Feb",
+          housing: "0.589924742",
+          transportation: "0.937051283",
+          food: "1.775050834",
+        },
+        {
+          year: "2016 Mar",
+          housing: "0.63947842",
+          transportation: "0.952981154",
+          food: "1.725349411",
+        },
+        {
+          year: "2016 Apr",
+          housing: "0.689997215",
+          transportation: "0.951075192",
+          food: "1.682215676",
+        },
+        {
+          year: "2016 May",
+          housing: "0.745196993",
+          transportation: "0.956781643",
+          food: "1.635113637",
+        },
+        {
+          year: "2016 Jun",
+          housing: "0.806303146",
+          transportation: "0.939559574",
+          food: "1.586060228",
+        },
+        {
+          year: "2016 Jul",
+          housing: "0.866775882",
+          transportation: "0.933922216",
+          food: "1.544822662",
+        },
+        {
+          year: "2016 Aug",
+          housing: "0.923116314",
+          transportation: "0.929252605",
+          food: "1.510836563",
+        },
+        {
+          year: "2016 Sep",
+          housing: "0.979426409",
+          transportation: "0.93111111",
+          food: "1.476087322",
+        },
+        {
+          year: "2016 Oct",
+          housing: "1.034274288",
+          transportation: "0.93111111",
+          food: "1.440661226",
+        },
+        {
+          year: "2016 Nov",
+          housing: "1.089090826",
+          transportation: "0.932973333",
+          food: "1.410407341",
+        },
+        {
+          year: "2016 Dec",
+          housing: "1.145723549",
+          transportation: "0.943236039",
+          food: "1.39489286",
+        },
+        {
+          year: "2017 Jan",
+          housing: "1.200718279",
+          transportation: "0.964930468",
+          food: "1.387918396",
+        },
+        {
+          year: "2017 Feb",
+          housing: "1.259553475",
+          transportation: "0.983264147",
+          food: "1.390694232",
+        },
+        {
+          year: "2017 Mar",
+          housing: "1.3048974",
+          transportation: "0.992113524",
+          food: "1.408773257",
+        },
+        {
+          year: "2017 Apr",
+          housing: "1.368837372",
+          transportation: "1.030805952",
+          food: "1.43131363",
+        },
+        {
+          year: "2017 May",
+          housing: "1.427697379",
+          transportation: "1.074099802",
+          food: "1.461371216",
+        },
+        {
+          year: "2017 Jun",
+          housing: "1.487660669",
+          transportation: "1.122434293",
+          food: "1.496444125",
+        },
+        {
+          year: "2017 Jul",
+          housing: "1.554605399",
+          transportation: "1.152740019",
+          food: "1.535351672",
+        },
+        {
+          year: "2017 Aug",
+          housing: "1.630781064",
+          transportation: "1.183863999",
+          food: "1.569129409",
+        },
+        {
+          year: "2017 Sep",
+          housing: "1.707427774",
+          transportation: "1.211092871",
+          food: "1.617772421",
+        },
+        {
+          year: "2017 Oct",
+          housing: "1.79450659",
+          transportation: "1.24863675",
+          food: "1.68410109",
+        },
+        {
+          year: "2017 Nov",
+          housing: "1.871670374",
+          transportation: "1.284847216",
+          food: "1.754833336",
+        },
+        {
+          year: "2017 Dec",
+          housing: "1.957767211",
+          transportation: "1.307974466",
+          food: "1.826781502",
+        },
+        {
+          year: "2018 Jan",
+          housing: "2.041951201",
+          transportation: "1.345905725",
+          food: "1.894372418",
+        },
+        {
+          year: "2018 Feb",
+          housing: "2.131797054",
+          transportation: "1.387628803",
+          food: "1.951203591",
+        },
+        {
+          year: "2018 Mar",
+          housing: "2.217068936",
+          transportation: "1.430645296",
+          food: "2.011690902",
+        },
+        {
+          year: "2018 Apr",
+          housing: "2.290232211",
+          transportation: "1.444951749",
+          food: "2.066006556",
+        },
+        {
+          year: "2018 May",
+          housing: "2.361229409",
+          transportation: "1.47096088",
+          food: "2.113524707",
+        },
+        {
+          year: "2018 Jun",
+          housing: "2.429705062",
+          transportation: "1.507734902",
+          food: "2.155795201",
+        },
+        {
+          year: "2018 Jul",
+          housing: "2.500166509",
+          transportation: "1.574075238",
+          food: "2.205378491",
+        },
+        {
+          year: "2018 Aug",
+          housing: "2.567671005",
+          transportation: "1.637038247",
+          food: "2.258307575",
+        },
+        {
+          year: "2018 Sep",
+          housing: "2.642133464",
+          transportation: "1.70906793",
+          food: "2.292182188",
+        },
+        {
+          year: "2018 Oct",
+          housing: "2.713471068",
+          transportation: "1.753503696",
+          food: "2.312811828",
+        },
+        {
+          year: "2018 Nov",
+          housing: "2.784021315",
+          transportation: "1.814876326",
+          food: "2.324375887",
+        },
+        {
+          year: "2018 Dec",
+          housing: "2.839701742",
+          transportation: "1.878396997",
+          food: "2.340646518",
+        },
+        {
+          year: "2019 Jan",
+          housing: "2.887976671",
+          transportation: "1.955411274",
+          food: "2.361712337",
+        },
+        {
+          year: "2019 Feb",
+          housing: "2.922632391",
+          transportation: "2.04144937",
+          food: "2.390052885",
+        },
+        {
+          year: "2019 Mar",
+          housing: "2.966471877",
+          transportation: "2.121065896",
+          food: "2.409173308",
+        },
+        {
+          year: "2019 Apr",
+          housing: "3.005036012",
+          transportation: "2.258935179",
+          food: "2.426037521",
+        },
+        {
+          year: "2019 May",
+          housing: "3.035086372",
+          transportation: "2.326703234",
+          food: "2.452723934",
+        },
+        {
+          year: "2019 Jun",
+          housing: "3.056331976",
+          transportation: "2.459325319",
+          food: "2.494420241",
+        },
+        {
+          year: "2019 Jul",
+          housing: "3.074669968",
+          transportation: "2.523267777",
+          food: "2.531836544",
+        },
+        {
+          year: "2019 Aug",
+          housing: "3.093117988",
+          transportation: "2.609058881",
+          food: "2.577409602",
+        },
+        {
+          year: "2019 Sep",
+          housing: "3.12095605",
+          transportation: "2.679503471",
+          food: "2.621225565",
+        },
+        {
+          year: "2019 Oct",
+          housing: "3.142802742",
+          transportation: "2.784004106",
+          food: "2.657922723",
+        },
+        {
+          year: "2019 Nov",
+          housing: "3.167945164",
+          transportation: "2.853604209",
+          food: "2.7137391",
+        },
+        {
+          year: "2019 Dec",
+          housing: "3.196456671",
+          transportation: "2.962041169",
+          food: "2.759872665",
+        },
+        {
+          year: "2020 Jan",
+          housing: "3.247599977",
+          transportation: "3.024244034",
+          food: "2.798510882",
+        },
+        {
+          year: "2020 Feb",
+          housing: "3.289818777",
+          transportation: "3.127068331",
+          food: "2.834891524",
+        },
+        {
+          year: "2020 Mar",
+          housing: "3.372064246",
+          transportation: "3.211499176",
+          food: "2.871745114",
+        },
+        {
+          year: "2020 Apr",
+          housing: "3.395668696",
+          transportation: "3.291786655",
+          food: "2.911949545",
+        },
+        {
+          year: "2020 May",
+          housing: "3.433021052",
+          transportation: "3.370789535",
+          food: "2.967276587",
+        },
+        {
+          year: "2020 Jun",
+          housing: "3.501681473",
+          transportation: "3.455059273",
+          food: "3.002883906",
+        },
+        {
+          year: "2020 Jul",
+          housing: "3.561210058",
+          transportation: "3.499975044",
+          food: "3.026906977",
+        },
+        {
+          year: "2020 Aug",
+          housing: "3.646679099",
+          transportation: "3.555974644",
+          food: "3.039014605",
+        },
+        {
+          year: "2020 Sep",
+          housing: "3.770666189",
+          transportation: "3.641318036",
+          food: "3.039014605",
+        },
+        {
+          year: "2020 Oct",
+          housing: "3.944116833",
+          transportation: "3.728709669",
+          food: "3.057248693",
+        },
+        {
+          year: "2020 Nov",
+          housing: "4.180763843",
+          transportation: "3.814469991",
+          food: "3.041962449",
+        },
+        {
+          year: "2020 Dec",
+          housing: "4.473417312",
+          transportation: "3.906017271",
+          food: "2.999374975",
+        },
+        {
+          year: "2021 Jan",
+          housing: "4.817870445",
+          transportation: "3.913829305",
+          food: "2.97837935",
+        },
+        {
+          year: "2021 Feb",
+          housing: "5.212935822",
+          transportation: "3.941226111",
+          food: "2.960509074",
+        },
+        {
+          year: "2021 Mar",
+          housing: "5.67688711",
+          transportation: "4.055521668",
+          food: "2.919061947",
+        },
+        {
+          year: "2021 Apr",
+          housing: "6.165099402",
+          transportation: "4.197464926",
+          food: "2.904466637",
+        },
+        {
+          year: "2021 May",
+          housing: "6.689132851",
+          transportation: "4.319191409",
+          food: "2.866708571",
+        },
+        {
+          year: "2021 Jun",
+          housing: "7.572098387",
+          transportation: "4.457405534",
+          food: "2.849508319",
+        },
+        {
+          year: "2021 Jul",
+          housing: "8.094573176",
+          transportation: "4.586670295",
+          food: "2.832411269",
+        },
+        {
+          year: "2021 Aug",
+          housing: "8.823084761",
+          transportation: "4.751790425",
+          food: "2.840908503",
+        },
+        {
+          year: "2021 Sep",
+          housing: "9.828916424",
+          transportation: "4.851578024",
+          food: "2.863635771",
+        },
+        {
+          year: "2021 Oct",
+          housing: "10.62505865",
+          transportation: "5.006828521",
+          food: "2.900863036",
+        },
+        {
+          year: "2021 Nov",
+          housing: "11.54943876",
+          transportation: "5.24715629",
+          food: "2.973384612",
+        },
+        {
+          year: "2021 Dec",
+          housing: "12.49649274",
+          transportation: "5.462289698",
+          food: "3.098266766",
+        },
+        {
+          year: "2022 Jan",
+          housing: "13.68365955",
+          transportation: "5.669856706",
+          food: "3.234590504",
+        },
+        {
+          year: "2022 Feb",
+          housing: "14.9836072",
+          transportation: "5.862631834",
+          food: "3.399554619",
+        },
+        {
+          year: "2022 Mar",
+          housing: "16.25721381",
+          transportation: "6.208527113",
+          food: "3.600128342",
+        },
+        {
+          year: "2022 Apr",
+          housing: "18.09427898",
+          transportation: "6.487910833",
+          food: "3.841336941",
+        },
+        {
+          year: "2022 May",
+          housing: "20.28368673",
+          transportation: "6.831770107",
+          food: "4.175533255",
+        },
+        {
+          year: "2022 Jun",
+          housing: "21.72382849",
+          transportation: "7.159695072",
+          food: "4.584735514",
+        },
+        {
+          year: "2022 Jul",
+          housing: "24.87378362",
+          transportation: "7.782588543",
+          food: "5.166996924",
+        },
+        {
+          year: "2022 Aug",
+          housing: "28.00788036",
+          transportation: "8.420760804",
+          food: "5.843873521",
+        },
+        {
+          year: "2022 Sep",
+          housing: "30.75265263",
+          transportation: "9.102842429",
+          food: "6.697079055",
+        },
+        {
+          year: "2022 Oct",
+          housing: "34.56598156",
+          transportation: "9.758247084",
+          food: "7.79540002",
+        },
+        {
+          year: "2022 Nov",
+          housing: "38.12627766",
+          transportation: "10.28519243",
+          food: "9.081641023",
+        },
+        {
+          year: "2022 Dec",
+          housing: "41.86265287",
+          transportation: "10.95372993",
+          food: "10.61643836",
+        },
+        {
+          year: "2023 Jan",
+          housing: "44.5",
+          transportation: "11.6",
+          food: "12.4",
+        },
+      ];
+      data.columns = ["year", "housing", "transportation", "food"];
+
+      const comparison = [
+        {
+          year: 2023,
+          list: [
+            { xValue: "United Kingdom", yValue: 61.5 },
+            { xValue: "United States", yValue: 72.4 },
+            { xValue: "China", yValue: 39.2 },
+            { xValue: "Singapore", yValue: 85.9 },
+            { xValue: "Japan", yValue: 64.6 },
+            { xValue: "Germany", yValue: 62.9 },
+            { xValue: "India", yValue: 22.4 },
+            { xValue: "France", yValue: 68.7 },
+          ],
+        },
+        {
+          year: 2022,
+          list: [
+            { xValue: "United Kingdom", yValue: 69.7 },
+            { xValue: "United States", yValue: 70.1 },
+            { xValue: "China", yValue: 41.8 },
+            { xValue: "Singapore", yValue: 84.0 },
+            { xValue: "Japan", yValue: 77.0 },
+            { xValue: "Germany", yValue: 65.6 },
+            { xValue: "India", yValue: 24.4 },
+            { xValue: "France", yValue: 74.1 },
+          ],
+        },
+        {
+          year: 2021,
+          list: [
+            { xValue: "United Kingdom", yValue: 71.0 },
+            { xValue: "United States", yValue: 71.9 },
+            { xValue: "China", yValue: 42.5 },
+            { xValue: "Singapore", yValue: 85.6 },
+            { xValue: "Japan", yValue: 87.8 },
+            { xValue: "Germany", yValue: 70.6 },
+            { xValue: "India", yValue: 25.2 },
+            { xValue: "France", yValue: 80.6 },
+          ],
+        },
+        {
+          year: 2020,
+          list: [
+            { xValue: "Japan", yValue: 83.3 },
+            { xValue: "Singapore", yValue: 81.1 },
+            { xValue: "France", yValue: 74.1 },
+            { xValue: "United States", yValue: 71.1 },
+            { xValue: "United Kingdom", yValue: 67.3 },
+            { xValue: "Germany", yValue: 65.3 },
+            { xValue: "China", yValue: 40 },
+            { xValue: "India", yValue: 24.6 },
+          ],
+        },
+        {
+          year: 2019,
+          list: [
+            { xValue: "Japan", yValue: 83.3 },
+            { xValue: "France", yValue: 74.9 },
+            { xValue: "United States", yValue: 69.9 },
+            { xValue: "Singapore", yValue: 69.8 },
+            { xValue: "Germany", yValue: 67.6 },
+            { xValue: "United Kingdom", yValue: 65.3 },
+            { xValue: "China", yValue: 39.2 },
+            { xValue: "India", yValue: 24.2 },
+          ],
+        },
+        {
+          year: 2018,
+          list: [
+            { xValue: "Singapore", yValue: 91.4 },
+            { xValue: "Japan", yValue: 86.6 },
+            { xValue: "France", yValue: 83.9 },
+            { xValue: "United Kingdom", yValue: 75.8 },
+            { xValue: "Germany", yValue: 74.3 },
+            { xValue: "United States", yValue: 73 },
+            { xValue: "China", yValue: 44.6 },
+            { xValue: "India", yValue: 26.9 },
+          ],
+        },
+        {
+          year: 2017,
+          list: [
+            { xValue: "Japan", yValue: 85.3 },
+            { xValue: "Singapore", yValue: 82.4 },
+            { xValue: "United States", yValue: 75.4 },
+            { xValue: "France", yValue: 74.9 },
+            { xValue: "United Kingdom", yValue: 69.5 },
+            { xValue: "Germany", yValue: 65.5 },
+            { xValue: "China", yValue: 44.8 },
+            { xValue: "India", yValue: 25.1 },
+          ],
+        },
+        {
+          year: 2016,
+          list: [
+            { xValue: "Singapore", yValue: 83.7 },
+            { xValue: "Japan", yValue: 81.3 },
+            { xValue: "United Kingdom", yValue: 81 },
+            { xValue: "France", yValue: 75.3 },
+            { xValue: "United States", yValue: 74.1 },
+            { xValue: "Germany", yValue: 65.5 },
+            { xValue: "China", yValue: 48.1 },
+            { xValue: "India", yValue: 24.1 },
+          ],
+        },
+      ];
+
+      function renderLineChart(lineData) {
         // Parse data
         lineData.forEach(function (d) {
-          d.year = +d.year;
-          d.costOfLivingIndex = +d.costOfLivingIndex;
+          d.year = new Date(d.year);
+          d.costOfLivingIndex = lineData.columns
+            .slice(1)
+            .reduce((p, k) => p + parseFloat(d[k]), 0);
         });
+
+        d3.select("#linechart").selectChildren().remove();
 
         // Line chart implementation using D3
         const margin = { top: 20, right: 20, bottom: 30, left: 50 },
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
 
-        const x = d3.scaleLinear().range([0, width]);
+        const x = d3.scaleTime().range([0, width]);
         const y = d3.scaleLinear().range([height, 0]);
 
         const line = d3
@@ -40,20 +675,13 @@
 
         const svg = d3
           .select("#linechart")
-          .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
           .append("g")
           .attr(
             "transform",
             "translate(" + margin.left + "," + margin.top + ")"
           );
 
-        x.domain(
-          d3.extent(lineData, function (d) {
-            return d.year;
-          })
-        );
+        x.domain([lineData[0].year, lineData[lineData.length - 1].year]);
         y.domain(
           d3.extent(lineData, function (d) {
             return d.costOfLivingIndex;
@@ -61,38 +689,185 @@
         );
 
         svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 0)
+          .attr("text-anchor", "middle")
+          .text("Line Chart of cost of living index");
+
+        svg
           .append("g")
+          .attr("class", "x-related")
           .attr("transform", "translate(0," + height + ")")
           .call(d3.axisBottom(x));
+
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", height + margin.bottom)
+          .attr("text-anchor", "middle")
+          .text("Year");
 
         svg.append("g").call(d3.axisLeft(y));
 
         svg
+          .append("text")
+          .attr(
+            "transform",
+            `translate(${-margin.left + 15}, ${height / 2}) rotate(-90)`
+          )
+          .attr("text-anchor", "middle")
+          .text("Cost of Living Index");
+
+        svg
           .append("path")
           .datum(lineData)
+          .attr("clip-path", "url(#clip)")
+          .attr("class", "x-related")
           .attr("fill", "none")
           .attr("stroke", "steelblue")
           .attr("stroke-linejoin", "round")
           .attr("stroke-linecap", "round")
           .attr("stroke-width", 1.5)
           .attr("d", line);
-      });
 
-      // Load data for the scatterplot
-      d3.csv("scatter.csv").then(function (scatterData) {
+        svg
+          .append("line")
+          .attr("class", "helper-line")
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("x2", 0)
+          .attr("y2", 0)
+          .attr("x1", 0)
+          .attr("y1", height);
+
+        svg
+          .append("text")
+          .attr("class", "helper-text")
+          .attr("x", 0)
+          .attr("y", height);
+
+        svg
+          .append("clipPath")
+          .attr("id", "clip")
+          .append("rect")
+          .attr("fill", "white")
+          .attr("stroke", "none")
+          .attr("width", width)
+          .attr("height", height);
+
+        svg
+          .append("rect")
+          .attr("fill", "transparent")
+          .attr("stroke", "none")
+          .attr("width", width)
+          .attr("height", height)
+          .on("mousemove", (e) => {
+            const xPos = e.offsetX - margin.left,
+              yPos = e.offsetY - margin.top;
+
+            d3.select("#linechart .helper-line")
+              .attr("x2", xPos)
+              .attr("x1", xPos);
+
+            const date = x.invert(xPos);
+            const yearBetween = lineData.reduce(
+              (p, v) =>
+                p[0]?.year <= date && p[1]?.year >= date ? p : [p[1], v],
+              [null, null]
+            );
+            const value =
+              yearBetween[0].costOfLivingIndex +
+              ((yearBetween[1].costOfLivingIndex -
+                yearBetween[0].costOfLivingIndex) *
+                (date - yearBetween[0].year)) /
+                (yearBetween[1].year - yearBetween[0].year);
+
+            d3.select("#linechart .helper-text")
+              .attr("x", xPos)
+              .attr("y", yPos)
+              .attr("text-anchor", xPos > width / 2 ? "end" : "start")
+              .text(`${date.getFullYear()}: ` + value.toFixed(1));
+          })
+          .on("click", (e) => {
+            const xPos = e.offsetX - margin.left,
+              yPos = e.offsetY - margin.top;
+
+            const date = x.invert(xPos);
+
+            renderScatterChart(
+              comparison.find((x) => x.year == date.getFullYear()).list,
+              date.getFullYear()
+            );
+          })
+          .on("mousewheel", (e) => {
+            const delta = e.deltaY,
+              xPos = e.offsetX - margin.left;
+
+            const origin = x.domain();
+
+            const date = x.invert(xPos);
+
+            let left = origin[0] - date;
+            let right = origin[1] - date;
+
+            if (delta < 0) {
+              left *= 0.8;
+              right *= 0.8;
+            } else {
+              left /= 0.8;
+              right /= 0.8;
+            }
+
+            if (left < lineData[0].year - date) {
+              left = lineData[0].year - date;
+            }
+            if (right > lineData[lineData.length - 1].year - date) {
+              right = lineData[lineData.length - 1].year - date;
+            }
+
+            x.domain([
+              new Date(+date + Math.round(left)),
+              new Date(+date + Math.round(right)),
+            ]);
+
+            d3.selectAll("#linechart .x-related").remove();
+
+            svg
+              .append("g")
+              .attr("class", "x-related")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x));
+
+            svg
+              .append("path")
+              .datum(lineData)
+              .attr("class", "x-related")
+              .attr("clip-path", "url(#clip)")
+              .attr("fill", "none")
+              .attr("stroke", "steelblue")
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-linecap", "round")
+              .attr("stroke-width", 1.5)
+              .attr("d", line);
+          });
+      }
+
+      function renderScatterChart(scatterData, year) {
         // Parse data
         scatterData.forEach(function (d) {
-          d.xValue = +d.xValue;
           d.yValue = +d.yValue;
         });
-
+        scatterData.sort((a, b) => (a.xValue < b.xValue ? -1 : 1));
         // Scatterplot implementation using D3
-        const margin = { top: 20, right: 20, bottom: 30, left: 40 },
+        const margin = { top: 50, right: 20, bottom: 40, left: 40 },
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
 
-        const x = d3.scaleLinear().range([0, width]);
+        const x = d3.scaleBand().range([0, width]);
         const y = d3.scaleLinear().range([height, 0]);
+
+        d3.select("#scatterplot").selectChildren().remove();
 
         const svg = d3
           .select("#scatterplot")
@@ -106,22 +881,39 @@
           );
 
         x.domain(
-          d3.extent(scatterData, function (d) {
+          scatterData.map(function (d) {
             return d.xValue;
           })
-        ).nice();
-        y.domain(
-          d3.extent(scatterData, function (d) {
-            return d.yValue;
-          })
-        ).nice();
+        );
+        y.domain([20, 100]).nice();
+
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 0)
+          .attr("text-anchor", "middle")
+          .text("Scatter plot of different country in " + year);
 
         svg
           .append("g")
           .attr("transform", "translate(0," + height + ")")
           .call(d3.axisBottom(x));
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", height + margin.bottom - 10)
+          .attr("text-anchor", "middle")
+          .text("Country");
 
         svg.append("g").call(d3.axisLeft(y));
+        svg
+          .append("text")
+          .attr(
+            "transform",
+            `translate(${-margin.left + 15}, ${height / 2}) rotate(-90)`
+          )
+          .attr("text-anchor", "middle")
+          .text("Comparison");
 
         svg
           .selectAll(".dot")
@@ -131,29 +923,30 @@
           .attr("class", "dot")
           .attr("r", 3.5)
           .attr("cx", function (d) {
-            return x(d.xValue);
+            return x(d.xValue) + x.bandwidth() / 2;
           })
           .attr("cy", function (d) {
             return y(d.yValue);
           })
           .attr("fill", "steelblue");
-      });
+      }
 
-      // Load data for the stacked bar chart
-      d3.csv("bar.csv").then(function (barData) {
+      function renderStackedBarChart(barData) {
         // Parse data
         const categories = barData.columns.slice(1);
         const stack = d3.stack().keys(categories);
         const stackedValues = stack(barData);
 
         // Stacked bar chart implementation using D3
-        const margin = { top: 20, right: 20, bottom: 30, left: 40 },
+        const margin = { top: 20, right: 20, bottom: 40, left: 50 },
           width = 960 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
+          height = 1000 - margin.top - margin.bottom;
 
         const x = d3.scaleBand().range([0, width]).padding(0.1);
         const y = d3.scaleLinear().range([height, 0]);
         const z = d3.scaleOrdinal(d3.schemeCategory10);
+
+        d3.select("#barchart").selectChildren().remove();
 
         const svg = d3
           .select("#barchart")
@@ -186,7 +979,7 @@
           .append("g")
           .attr("class", "serie")
           .attr("fill", function (d, i) {
-            return z(i);
+            return z(categories[i]);
           })
           .selectAll("rect")
           .data(function (d) {
@@ -206,12 +999,138 @@
           .attr("width", x.bandwidth());
 
         svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 0)
+          .attr("text-anchor", "middle")
+          .text("Stacked Bar Chart of cost of living index");
+
+        svg
           .append("g")
           .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(x));
+          .call(
+            d3
+              .axisBottom(x)
+              .tickValues(
+                x.domain().filter(function (d, i) {
+                  return !(i % 10);
+                })
+              )
+              .tickFormat((d) => `${d.getMonth() + 1}/${d.getFullYear()}`)
+          );
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", height + margin.bottom - 10)
+          .attr("text-anchor", "middle")
+          .text("Date");
 
         svg.append("g").call(d3.axisLeft(y));
-      });
+        svg
+          .append("text")
+          .attr(
+            "transform",
+            `translate(${-margin.left + 15}, ${height / 2}) rotate(-90)`
+          )
+          .attr("text-anchor", "middle")
+          .text("Cost of Living Index");
+
+        const legend = svg
+          .selectAll(".legend")
+          .data(categories.slice())
+          .enter()
+          .append("g")
+          .attr("class", "legend")
+          .attr("transform", function (d, i) {
+            return "translate(-100," + i * 20 + ")";
+          })
+          .call((g) =>
+            g
+              .append("rect")
+              .attr("x", width - 18)
+              .attr("width", 18)
+              .attr("height", 18)
+              .attr("fill", z)
+          )
+          .call((g) =>
+            g
+              .append("text")
+              .text((d) => d)
+              .attr("x", width - 24)
+              .attr("y", 9)
+              .attr("dy", ".35em")
+              .style("text-anchor", "end")
+          );
+
+        svg
+          .append("line")
+          .attr("class", "helper-line")
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("x2", 0)
+          .attr("y2", 0)
+          .attr("x1", 0)
+          .attr("y1", height);
+        svg
+          .append("text")
+          .attr("class", "helper-text0")
+          .attr("x", 0)
+          .attr("y", height);
+        svg
+          .append("text")
+          .attr("class", "helper-text1")
+          .attr("x", 0)
+          .attr("y", height);
+        svg
+          .append("text")
+          .attr("class", "helper-text2")
+          .attr("x", 0)
+          .attr("y", height);
+
+        svg
+          .append("rect")
+          .attr("fill", "transparent")
+          .attr("stroke", "none")
+          .attr("width", width)
+          .attr("height", height)
+          .on("mousemove", (e) => {
+            const xPos = e.offsetX - margin.left - 960,
+              yPos = e.offsetY - margin.top;
+
+            d3.select("#barchart .helper-line")
+              .attr("x2", xPos)
+              .attr("x1", xPos);
+
+            const date = Math.floor(xPos / (x.range()[1] / barData.length));
+            const value = barData[date];
+
+            categories
+              .map((x) => `${x}: ${parseFloat(value[x]).toFixed(1)}`)
+              .forEach((x, i) => {
+                d3.select("#barchart .helper-text" + i)
+                  .attr("x", xPos)
+                  .attr("y", yPos + i * 20)
+                  .attr("text-anchor", xPos > width / 2 ? "end" : "start")
+                  .text(x);
+              });
+          })
+          .on("click", (e) => {
+            const xPos = e.offsetX - margin.left - 960,
+              yPos = e.offsetY - margin.top;
+
+            const date = Math.floor(xPos / (x.range()[1] / barData.length));
+            const value = barData[date];
+
+            renderScatterChart(
+              comparison.find((x) => x.year == value.year.getFullYear()).list,
+              value.year.getFullYear()
+            );
+          });
+      }
+
+      renderLineChart(data);
+      renderScatterChart(comparison.find((x) => x.year == 2023).list, 2023);
+      renderStackedBarChart(data);
     </script>
   </body>
 </html>
