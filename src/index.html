@@ -15,9 +15,7 @@
       Tooltips: Hover on the line chart or stacked bar chart to show the
       tooltips.
     </p>
-    <p>
-      Zoom and Pan: Use mouse wheel to zoom and pan on the line chart.
-    </p>
+    <p>Zoom and Pan: Use mouse wheel to zoom and pan on the line chart.</p>
     <p>
       Filtering: Click on the line chart or stacked bar chart to show the
       corresponding comparison data in scatter plot.
@@ -648,7 +646,23 @@
       function renderLineChart(lineData) {
         // Parse data
         lineData.forEach(function (d) {
-          d.year = new Date(d.year);
+          const [year, month] = d.year.split(" ");
+          // Convert month string to number
+          const monthMap = {
+            Jan: 1,
+            Feb: 2,
+            Mar: 3,
+            Apr: 4,
+            May: 5,
+            Jun: 6,
+            Jul: 7,
+            Aug: 8,
+            Sep: 9,
+            Oct: 10,
+            Nov: 11,
+            Dec: 12,
+          };
+          d.year = new Date(year, monthMap[month] - 1);
           d.costOfLivingIndex = lineData.columns
             .slice(1)
             .reduce((p, k) => p + parseFloat(d[k]), 0);
