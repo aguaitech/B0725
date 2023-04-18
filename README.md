@@ -1,3 +1,5 @@
+# Public for plagiarism detection
+
 choose Track 1: Cost of Living data analysis
 
 Part 1. Analytics
